@@ -71,8 +71,7 @@ private:
   const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
 
   const edm::EDGetTokenT<TrackSoAHost> tokenTrack_;
-  const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
-  const edm::EDGetTokenT<HMSstorage> hmsToken_;
+  const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuPixelHits_;
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> cpuStripHits_;
   edm::EDGetTokenT<HMSstorage> hmsToken_;
 
