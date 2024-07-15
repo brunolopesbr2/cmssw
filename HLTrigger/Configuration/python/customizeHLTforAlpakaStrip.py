@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from HeterogeneousCore.AlpakaCore.functions import *
+from HLTrigger.Configuration.common import *
+
 
 ## PF HLT in Alpaka
 def customizeHLTforAlpakaParticleFlowClustering(process):
@@ -553,18 +555,20 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
       PedestalSubtractionFedMode = cms.bool( True )
     )
     )
+    
     process.hltSiStripMatchedRecHitsFull = cms.EDProducer( "SiStripRecHitConverter",
-    ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacility" ),
-    rphiRecHits = cms.string( "rphiRecHit" ),
-    stereoRecHits = cms.string( "stereoRecHit" ),
-    matchedRecHits = cms.string( "matchedRecHit" ),
-    useSiStripQuality = cms.bool( False ),
-    MaskBadAPVFibers = cms.bool( False ),
-    doMatching = cms.bool( True ),
-    StripCPE = cms.ESInputTag( "hltESPStripCPEfromTrackAngle","hltESPStripCPEfromTrackAngle" ),
-    Matcher = cms.ESInputTag( "SiStripRecHitMatcherESProducer","StandardMatcher" ),
-    siStripQualityLabel = cms.ESInputTag( "","" )
+        ClusterProducer = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression" ),
+        rphiRecHits = cms.string( "rphiRecHit" ),
+        stereoRecHits = cms.string( "stereoRecHit" ),
+        matchedRecHits = cms.string( "matchedRecHit" ),
+        useSiStripQuality = cms.bool( False ),
+        MaskBadAPVFibers = cms.bool( False ),
+        doMatching = cms.bool( True ),
+        StripCPE = cms.ESInputTag( "hltESPStripCPEfromTrackAngle","hltESPStripCPEfromTrackAngle" ),
+        Matcher = cms.ESInputTag( "SiStripRecHitMatcherESProducer","StandardMatcher" ),
+        siStripQualityLabel = cms.ESInputTag( "","" )
     )
+    
     process.hltSiPixelOnlyRecHitsSoA = cms.EDProducer('SiPixelRecHitAlpakaPhase1@alpaka',
         beamSpot = cms.InputTag('hltOnlineBeamSpotDevice'),
         src = cms.InputTag('hltSiPixelClustersSoA'),
@@ -586,6 +590,14 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         backend = cms.untracked.string('')
       )
     )
+    #The default of the above from pixel
+    #process.hltSiPixelRecHitsSoA = cms.EDProducer( "SiPixelRecHitAlpakaPhase1@alpaka",
+    #beamSpot = cms.InputTag( "hltOnlineBeamSpotDevice" ),
+    #src = cms.InputTag( "hltSiPixelClustersSoA" ),
+    #CPE = cms.string( "PixelCPEFastParams" ),
+    #alpaka = cms.untracked.PSet(  backend = cms.untracked.string( "" ) )
+    #)
+
 
     process.hltSiPixelRecHits = cms.EDProducer('SiPixelRecHitFromSoAAlpakaPhase1',
         pixelRecHitSrc = cms.InputTag('hltSiPixelOnlyRecHitsSoA'),
@@ -664,6 +676,21 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
 def customizeHLTforAlpakaPixelRecoTracking(process):
     '''Customisation to introduce the Pixel-Track Reconstruction in Alpaka
     '''
+    for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
+        print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+
+    for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
+        print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
 
     # alpaka EDProducer
     # consumes
@@ -1009,6 +1036,11 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
         )
     )
 
+    process.hltPixelTracksCPUSerial = process.hltPixelTracksSoA.clone(
+        pixelRecHitSrc = 'hltSiPixelRecHitsCPUSerial',
+        alpaka = dict( backend = 'serial_sync' )
+    )
+
     process.hltPixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase1Strip",
         beamSpot = cms.InputTag("hltOnlineBeamSpot"),
         minNumberOfHits = cms.int32(0),
@@ -1021,7 +1053,52 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
         mightGet = cms.optional.untracked.vstring
     )
 
+    process.hltPixelTracksLegacyFormatCPUSerial = process.hltPixelTracks.clone(
+        pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHitsLegacyFormatCPUSerial"),
+        trackSrc = cms.InputTag("hltPixelTracksCPUSerial")
+    )
+
+    process.HLTRecoPixelTracksTask = cms.ConditionalTask(
+        process.hltPixelTracksSoA,
+        process.hltPixelTracks,
+    )
+
+    process.HLTRecoPixelTracksCPUSerialTask = cms.ConditionalTask(
+        process.hltPixelTracksCPUSerial,
+        process.hltPixelTracksLegacyFormatCPUSerial,
+    )
+
+    process.HLTRecoPixelTracksCPUSerialSequence = cms.Sequence( process.HLTRecoPixelTracksCPUSerialTask )
+
     return process
+
+def customizeHLTAlpakaDeleteCPE(process):
+    for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
+        print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+
+    for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
+        print("entered the producers loop")
+        if hasattr(producer, "CPE"):
+            print("found CPE stuff")
+            delattr(producer, "CPE")
+        if not hasattr(producer, 'frameSoA'):
+            setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
+
+    process.frameSoAESProducerPhase1Strip = cms.ESProducer('FrameSoAESProducerPhase1@alpaka',
+      ComponentName = cms.string('FrameSoAPhase1'),
+      appendToDataLabel = cms.string(''),
+      alpaka = cms.untracked.PSet(
+        backend = cms.untracked.string('')
+      )
+    )
+
+    return process
+
 
 def customizeHLTforAlpakaPixelRecoVertexing(process):
     '''Customisation to introduce the Pixel-Vertex Reconstruction in Alpaka
@@ -1032,6 +1109,9 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
     #  - TkSoADevice
     # produces
     #  - ZVertexDevice
+
+
+    
     process.hltPixelVerticesSoA = cms.EDProducer('PixelVertexProducerAlpakaPhase1Strip@alpaka',
         oneKernel = cms.bool(True),
         useDensity = cms.bool(True),
