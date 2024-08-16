@@ -320,7 +320,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               acc, hh, cells, cellTracks, foundNtuplets, apc, quality, tmpNtuplet, minHitsPerNtuplet, startAt0);
         }
         if (last) {  // if long enough save...
-          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
+          unsigned int pixelhits = 0;
+          for (auto c : tmpNtuplet) {
+                //auto isBarrel = cells[c].inner_detIndex(hh) < TrackerTraits::last_barrel_detIndex ;
+                //auto isEndCaps = cells[c].inner_detIndex(hh) > TrackerTraits::last_barrel_detIndex && cells[c].inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+                //bool isOT = cells[c].inner_detIndex(hh) >= TrackerTraits::numberOfPixelModules;
+                bool isPixel = cells[c].inner_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+                //auto isBarrelOuter = cells[c].outer_detIndex(hh) < TrackerTraits::last_barrel_detIndex ;
+                //auto isEndCapsOuter = cells[c].outer_detIndex(hh) > TrackerTraits::last_barrel_detIndex && cells[c].outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+                //bool isOTOuter = cells[c].outer_detIndex(hh) >= TrackerTraits::numberOfPixelModules;
+                bool isPixelOuter = cells[c].outer_detIndex(hh) < TrackerTraits::numberOfPixelModules;
+                
+              if(isPixel){
+                pixelhits = pixelhits + 1;
+                if (cells[c].outerNeighbors().empty()){
+                   if(isPixelOuter){
+                    pixelhits = pixelhits + 1;
+                   }
+                }
+              }
+          }
+          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1 || pixelhits >= 3) {
 #ifdef ONLY_TRIPLETS_IN_HOLE
             // triplets accepted only pointing to the hole
             if (tmpNtuplet.size() >= 3 || (startAt0 && hole4(hh, cells[tmpNtuplet[0]])) ||
