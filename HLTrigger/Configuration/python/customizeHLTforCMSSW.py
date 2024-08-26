@@ -265,7 +265,11 @@ def checkHLTfor43774(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
-
+    # Pixel+Strip HLT
+    from Configuration.ProcessModifiers.stripNtupletFit_cff import stripNtupletFit 
+    from HLTrigger.Configuration.customizeHLTforAlpakaStrip import customizeHLTforAlpakaStrip
+    (stripNtupletFit).makeProcessModifier(customizeHLTforAlpakaStrip).apply(process)
+     
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 

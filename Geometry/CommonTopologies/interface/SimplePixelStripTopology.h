@@ -76,25 +76,44 @@ namespace phase1PixelStripTopology {
   //constexpr int16_t phi5deg = 1820; 
   constexpr LayerPairData layerPairData[] = {
   //  inner     outer       phicuts   minz    maxz  maxr
-  { BPIX1,    BPIX2,      phi0p09,  -20.,   20.,  20.           }, // 0  (No inner layer) OK
+  //{ BPIX1,    BPIX2,      phi0p09,  -20.,   20.,  20.           }, // 0  (No inner layer) OK
+  //{ BPIX1,    FPIX1Pos,   phi0p07,  0.,     30.,  9.            }, // 1  (No inner layer) OK
+  //{ BPIX1,    FPIX1Neg,   phi0p07,  -30.,   0.,   9.            }, // 2  (No inner layer) OK
+  //{ BPIX2,    BPIX3,      phi0p09,  -22.,   22.,  20.           }, // 3  OK
+  //{ BPIX2,    FPIX1Pos,   phi0p09,  10.,    30.,  7.            }, // 4  OK
+  //{ BPIX2,    FPIX1Neg,   phi0p09,  -30.,   -10., 7.            }, // 5  OK
+  //{ FPIX1Pos, FPIX2Pos,   phi0p07,  -70.,   70.,  5.            }, // 6  OK
+  //{ FPIX1Neg, FPIX2Neg,   phi0p07,  -70.,   70.,  5.            }, // 7  OK
+  //{ BPIX1,    BPIX3,      phi0p09,  -20.,   20.,  20.           }, // 8 (No inner layer) OK
+  //{ BPIX2,    BPIX4,      phi0p09,  -22.,   22.,  20.           }, // 9  OK
+  //{ BPIX1,    FPIX2Pos,   phi0p07,    0.,   30.,  9.            }, // 10 (No inner layer) OK
+  //{ BPIX1,    FPIX2Neg,   phi0p07,  -30.,   0.,   9.            }, // 11 (No inner layer) Until here Starting Pairs OK
+  //{ FPIX1Pos, TIB1,       phi5deg,  -70.,   70.,  1000.         }, // 12 
+  //{ FPIX1Neg, TIB1,       phi5deg,  -70.,   70.,  1000.         }, // 13 
+  //{ BPIX3,    BPIX4,      phi0p09,  -22.,   22.,  20.           }, // 14    
+  //{ BPIX3,    FPIX1Pos,   phi0p07,  15.,    30.,  6.            }, // 15 
+  //{ BPIX3,    FPIX1Neg,   phi0p07,  -30,   -15.,  6.            }, // 16 
+  //{ FPIX2Pos, FPIX3Pos,   phi0p07,  -70.,   70.,  5.            }, // 17 
+  //{ FPIX2Neg, FPIX3Neg,   phi0p07,  -70.,   70.,  5.            }, // 18 
+  { BPIX1,    BPIX2,      phi0p05,  -20.,   20.,  20.           }, // 0  (No inner layer) OK
   { BPIX1,    FPIX1Pos,   phi0p07,  0.,     30.,  9.            }, // 1  (No inner layer) OK
   { BPIX1,    FPIX1Neg,   phi0p07,  -30.,   0.,   9.            }, // 2  (No inner layer) OK
-  { BPIX2,    BPIX3,      phi0p09,  -22.,   22.,  20.           }, // 3  OK
-  { BPIX2,    FPIX1Pos,   phi0p09,  10.,    30.,  7.            }, // 4  OK
-  { BPIX2,    FPIX1Neg,   phi0p09,  -30.,   -10., 7.            }, // 5  OK
-  { FPIX1Pos, FPIX2Pos,   phi0p07,  -70.,   70.,  5.            }, // 6  OK
-  { FPIX1Neg, FPIX2Neg,   phi0p07,  -70.,   70.,  5.            }, // 7  OK
-  { BPIX1,    BPIX3,      phi0p09,  -20.,   20.,  20.           }, // 8 (No inner layer) OK
-  { BPIX2,    BPIX4,      phi0p09,  -22.,   22.,  20.           }, // 9  OK
-  { BPIX1,    FPIX2Pos,   phi0p07,    0.,   30.,  9.            }, // 10 (No inner layer) OK
-  { BPIX1,    FPIX2Neg,   phi0p07,  -30.,   0.,   9.            }, // 11 (No inner layer) Until here Starting Pairs OK
+  { BPIX2,    BPIX3,      phi0p05,  -22.,   22.,  20.           }, // 3  OK
+  { BPIX2,    FPIX1Pos,   phi0p06,  10.,    30.,  7.            }, // 4  OK
+  { BPIX2,    FPIX1Neg,   phi0p06,  -30.,   -10., 7.            }, // 5  OK
+  { FPIX1Pos, FPIX2Pos,   phi0p05,  -70.,   70.,  5.            }, // 6  OK
+  { FPIX1Neg, FPIX2Neg,   phi0p05,  -70.,   70.,  5.            }, // 7  OK
+  { BPIX1,    BPIX3,      phi0p05,  -20.,   20.,  20.           }, // 8 (No inner layer) OK
+  { BPIX2,    BPIX4,      phi0p05,  -22.,   22.,  20.           }, // 9  OK
+  { BPIX1,    FPIX2Pos,   phi0p05,    0.,   30.,  9.            }, // 10 (No inner layer) OK
+  { BPIX1,    FPIX2Neg,   phi0p05,  -30.,   0.,   9.            }, // 11 (No inner layer) Until here Starting Pairs OK
   { FPIX1Pos, TIB1,       phi5deg,  -70.,   70.,  1000.         }, // 12 
   { FPIX1Neg, TIB1,       phi5deg,  -70.,   70.,  1000.         }, // 13 
-  { BPIX3,    BPIX4,      phi0p09,  -22.,   22.,  20.           }, // 14    
-  { BPIX3,    FPIX1Pos,   phi0p07,  15.,    30.,  6.            }, // 15 
-  { BPIX3,    FPIX1Neg,   phi0p07,  -30,   -15.,  6.            }, // 16 
-  { FPIX2Pos, FPIX3Pos,   phi0p07,  -70.,   70.,  5.            }, // 17 
-  { FPIX2Neg, FPIX3Neg,   phi0p07,  -70.,   70.,  5.            }, // 18 
+  { BPIX3,    BPIX4,      phi0p06,  -22.,   22.,  20.           }, // 14    
+  { BPIX3,    FPIX1Pos,   phi0p06,  15.,    30.,  6.            }, // 15 
+  { BPIX3,    FPIX1Neg,   phi0p06,  -30,   -15.,  6.            }, // 16 
+  { FPIX2Pos, FPIX3Pos,   phi0p05,  -70.,   70.,  5.            }, // 17 
+  { FPIX2Neg, FPIX3Neg,   phi0p05,  -70.,   70.,  5.            }, // 18 
   { BPIX3,    TIB1,       phi5deg,  -22.,   22.,   1000.        }, // 19 
   { BPIX4,    TIB1,       phi5deg,  -22.,   22.,   1000.        }, // 20 
   { BPIX4,    TIB2,       phi5deg,  -22.,   22.,   1000.        }, // 21 
@@ -124,12 +143,14 @@ namespace phase1PixelStripTopology {
   { BPIX3,    TIB2,       phi5deg,  -22.,   22.,   1000.        }, // 45
   { BPIX4,    TID1Pos2D,   phi5deg,   0.,   55.,   1000.        }, // 46
   { BPIX4,    TID1Neg2D,   phi5deg,  -55.,  0.,    1000.        }, // 47
-  { FPIX1Pos, FPIX3Pos,   phi0p07,  -70.,   70.,      9.        }, // 48
+  //{ FPIX1Pos, FPIX3Pos,   phi0p07,  -70.,   70.,      9.        }, // 48
+  { FPIX1Pos, FPIX3Pos,   phi0p05,  -70.,   70.,      9.        }, // 48
   { FPIX1Pos, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 49
   { FPIX1Pos, TID1Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 50
   { FPIX1Pos, TID2Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 51
   { FPIX1Pos, TID3Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 52
-  { FPIX1Neg, FPIX3Neg,   phi0p07,  -70.,   70.,      9.        }, // 53
+  //{ FPIX1Neg, FPIX3Neg,   phi0p07,  -70.,   70.,      9.        }, // 53
+  { FPIX1Neg, FPIX3Neg,   phi0p05,  -70.,   70.,      9.        }, // 53
   { FPIX1Neg, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 54
   { FPIX1Neg, TID1Neg2D,  phi5deg,  -70.,   70.,   1000.        }, // 55
   { FPIX1Neg, TID2Neg2D,  phi5deg,  -70.,   70.,   1000.        }, // 56

@@ -124,11 +124,11 @@ void SiStripRecHitSoA<TrackerTraits>::produce(device::Event& iEvent, device::Eve
 
   // Count strip hits
   size_t nStripHits = 0;
-  std::cout << "number of modules: " << TrackerTraits::numberOfModules << std::endl;
+  //std::cout << "number of modules: " << TrackerTraits::numberOfModules << std::endl;
   for (const auto& detSet : stripHits) {
     const GluedGeomDet* det = static_cast<const GluedGeomDet*>(trackerGeometry->idToDet(detSet.detId()));
-    std::cout << "detSet.detId()" << detSet.detId() << std::endl;
-    std::cout << "det->stereoDet()->index()" << det->stereoDet()->index() << std::endl;
+    //std::cout << "detSet.detId()" << detSet.detId() << std::endl;
+    //std::cout << "det->stereoDet()->index()" << det->stereoDet()->index() << std::endl;
     if (TrackerTraits::mapIndex(det->stereoDet()->index()) < TrackerTraits::numberOfModules)
         nStripHits += detSet.size();
   } 
