@@ -427,6 +427,8 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         return process
     if not hasattr(process, 'HLTDoLocalPixelSequenceSerialSync'):
         return process
+    #if not hasattr(process, 'hltSiStripClusterizerForRawPrime'):
+    #    return process
     process.hltESPSiPixelCablingSoA = cms.ESProducer('SiPixelCablingSoAESProducer@alpaka',
         CablingMapLabel = cms.string(''),
         UseQualityInfo = cms.bool(False),
@@ -537,65 +539,126 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     process.hltSiStripExcludedFEDListProducer = cms.EDProducer("SiStripExcludedFEDListProducer",
     ProductLabel = cms.InputTag("rawDataCollector")
     )
-    process.hltSiStripRawToClustersFacility = cms.EDProducer("SiStripClusterizerFromRaw",
-    Algorithms = cms.PSet(
-        CommonModeNoiseSubtractionMode = cms.string('Median'),
-        PedestalSubtractionFedMode = cms.bool(True),
-        SiStripFedZeroSuppressionMode = cms.uint32(4),
-        TruncateInSuppressor = cms.bool(True),
-        Use10bitsTruncation = cms.bool(False),
-        doAPVRestore = cms.bool(False),
-        useCMMeanMap = cms.bool(False)
+    
+    process.hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
+    LegacyUnpacker = cms.bool( False ),
+    AppendedBytes = cms.int32( 0 ),
+    UseDaqRegister = cms.bool( False ),
+    UseFedKey = cms.bool( False ),
+    UnpackBadChannels = cms.bool( False ),
+    MarkModulesOnMissingFeds = cms.bool( True ),
+    TriggerFedId = cms.int32( 0 ),
+    UnpackCommonModeValues = cms.bool( False ),
+    DoAllCorruptBufferChecks = cms.bool( False ),
+    DoAPVEmulatorCheck = cms.bool( False ),
+    ErrorThreshold = cms.uint32( 7174 )
+)
+    process.hltSiStripZeroSuppression = cms.EDProducer( "SiStripZeroSuppression",
+    Algorithms = cms.PSet( 
+      CutToAvoidSignal = cms.double( 2.0 ),
+      lastGradient = cms.int32( 10 ),
+      slopeY = cms.int32( 4 ),
+      slopeX = cms.int32( 3 ),
+      PedestalSubtractionFedMode = cms.bool( False ),
+      Use10bitsTruncation = cms.bool( False ),
+      Fraction = cms.double( 0.2 ),
+      minStripsToFit = cms.uint32( 4 ),
+      consecThreshold = cms.uint32( 5 ),
+      hitStripThreshold = cms.uint32( 40 ),
+      Deviation = cms.uint32( 25 ),
+      CommonModeNoiseSubtractionMode = cms.string( "IteratedMedian" ),
+      filteredBaselineDerivativeSumSquare = cms.double( 30.0 ),
+      ApplyBaselineCleaner = cms.bool( True ),
+      doAPVRestore = cms.bool( True ),
+      TruncateInSuppressor = cms.bool( True ),
+      restoreThreshold = cms.double( 0.5 ),
+      sizeWindow = cms.int32( 1 ),
+      APVInspectMode = cms.string( "Hybrid" ),
+      ForceNoRestore = cms.bool( False ),
+      useRealMeanCM = cms.bool( False ),
+      ApplyBaselineRejection = cms.bool( True ),
+      DeltaCMThreshold = cms.uint32( 20 ),
+      nSigmaNoiseDerTh = cms.uint32( 4 ),
+      nSaturatedStrip = cms.uint32( 2 ),
+      SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
+      useCMMeanMap = cms.bool( False ),
+      discontinuityThreshold = cms.int32( 12 ),
+      distortionThreshold = cms.uint32( 20 ),
+      filteredBaselineMax = cms.double( 6.0 ),
+      Iterations = cms.int32( 3 ),
+      CleaningSequence = cms.uint32( 1 ),
+      nSmooth = cms.uint32( 9 ),
+      APVRestoreMode = cms.string( "BaselineFollower" ),
+      MeanCM = cms.int32( 0 ),
+      widthCluster = cms.int32( 64 )
     ),
-    Clusterizer = cms.PSet(
-        Algorithm = cms.string('ThreeThresholdAlgorithm'),
-        ChannelThreshold = cms.double(2.0),
-        ClusterThreshold = cms.double(5.0),
-        ConditionsLabel = cms.string(''),
-        MaxAdjacentBad = cms.uint32(0),
-        MaxSequentialBad = cms.uint32(1),
-        MaxSequentialHoles = cms.uint32(0),
-        RemoveApvShots = cms.bool(True),
-        SeedThreshold = cms.double(3.0),
-        clusterChargeCut = cms.PSet(
-            refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone')
-        ),
-        setDetId = cms.bool(True)
-    ),
-    ConditionsLabel = cms.string(''),
-    DoAPVEmulatorCheck = cms.bool(False),
-    HybridZeroSuppressed = cms.bool(False),
-    LegacyUnpacker = cms.bool(False),
-    ProductLabel = cms.InputTag("rawDataCollector"),
-    onDemand = cms.bool(True)
+    RawDigiProducersList = cms.VInputTag( 'hltSiStripRawToDigi:VirginRaw','hltSiStripRawToDigi:ProcessedRaw','hltSiStripRawToDigi:ScopeMode','hltSiStripRawToDigi:ZeroSuppressed' ),
+    storeCM = cms.bool( False ),
+    fixCM = cms.bool( False ),
+    produceRawDigis = cms.bool( False ),
+    produceCalculatedBaseline = cms.bool( False ),
+    produceBaselinePoints = cms.bool( False ),
+    storeInZScollBadAPV = cms.bool( True ),
+    produceHybridFormat = cms.bool( False )
     )
-
-    process.hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression = cms.EDProducer( "SiStripClusterizer",
+    
+    process.hltSiStripClusterizerForRawPrime = cms.EDProducer( "SiStripClusterizer",
     Clusterizer = cms.PSet( 
-      ChannelThreshold = cms.double( 2.0 ),
-      MaxSequentialBad = cms.uint32( 1 ),
-      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-      MaxSequentialHoles = cms.uint32( 0 ),
-      MaxAdjacentBad = cms.uint32( 0 ),
       Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
+      ChannelThreshold = cms.double( 2.0 ),
       SeedThreshold = cms.double( 3.0 ),
-      RemoveApvShots = cms.bool( True ),
       ClusterThreshold = cms.double( 5.0 ),
+      MaxSequentialHoles = cms.uint32( 0 ),
+      MaxSequentialBad = cms.uint32( 1 ),
+      MaxAdjacentBad = cms.uint32( 0 ),
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
       ConditionsLabel = cms.string( "" )
     ),
-    DigiProducersList = cms.VInputTag('hltSiStripZeroSuppression:VirginRaw','hltSiStripZeroSuppression:ProcessedRaw','hltSiStripZeroSuppression:ScopeMode','hltSiStripZeroSuppression:ZeroSuppressed' )
+    DigiProducersList = cms.VInputTag( 'hltSiStripZeroSuppression:ZeroSuppressed','hltSiStripZeroSuppression:VirginRaw','hltSiStripZeroSuppression:ProcessedRaw','hltSiStripZeroSuppression:ScopeMode' )
     )
+    process.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
+    ConditionsLabel = cms.string( "" ),
+    onDemand = cms.bool( False ),
+    DoAPVEmulatorCheck = cms.bool( False ),
+    LegacyUnpacker = cms.bool( False ),
+    HybridZeroSuppressed = cms.bool( False ),
+    Clusterizer = cms.PSet( 
+      ConditionsLabel = cms.string( "" ),
+      ClusterThreshold = cms.double( 5.0 ),
+      SeedThreshold = cms.double( 3.0 ),
+      Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
+      ChannelThreshold = cms.double( 2.0 ),
+      MaxAdjacentBad = cms.uint32( 0 ),
+      setDetId = cms.bool( True ),
+      MaxSequentialHoles = cms.uint32( 0 ),
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+      MaxSequentialBad = cms.uint32( 1 )
+    ),
+    Algorithms = cms.PSet( 
+      Use10bitsTruncation = cms.bool( False ),
+      CommonModeNoiseSubtractionMode = cms.string( "Median" ),
+      useCMMeanMap = cms.bool( False ),
+      TruncateInSuppressor = cms.bool( True ),
+      doAPVRestore = cms.bool( False ),
+      SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
+      PedestalSubtractionFedMode = cms.bool( True )
+    )
+    )   
     process.hltSiStripMatchedRecHitsFull = cms.EDProducer( "SiStripRecHitConverter",
-        ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacility" ),
-        rphiRecHits = cms.string( "rphiRecHit" ),
-        stereoRecHits = cms.string( "stereoRecHit" ),
-        matchedRecHits = cms.string( "matchedRecHit" ),
-        useSiStripQuality = cms.bool( False ),
-        MaskBadAPVFibers = cms.bool( False ),
-        doMatching = cms.bool( True ),
-        StripCPE = cms.ESInputTag( "hltESPStripCPEfromTrackAngle","hltESPStripCPEfromTrackAngle" ),
-        Matcher = cms.ESInputTag( "SiStripRecHitMatcherESProducer","StandardMatcher" ),
-        siStripQualityLabel = cms.ESInputTag( "","" )
+    ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    rphiRecHits = cms.string( "rphiRecHit" ),
+    stereoRecHits = cms.string( "stereoRecHit" ),
+    matchedRecHits = cms.string( "matchedRecHit" ),
+    useSiStripQuality = cms.bool( False ),
+    MaskBadAPVFibers = cms.bool( False ),
+    doMatching = cms.bool( True ),
+    StripCPE = cms.ESInputTag( "hltESPStripCPEfromTrackAngle","hltESPStripCPEfromTrackAngle" ),
+    Matcher = cms.ESInputTag( "SiStripRecHitMatcherESProducer","StandardMatcher" ),
+    siStripQualityLabel = cms.ESInputTag( "","" )
     )
     
     for producer in producers_by_type(process, "SiStripRecHitConverter"):
@@ -650,7 +713,10 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         process.hltSiPixelDigisErrors, # was: hltSiPixelDigis
         #process.hltSiStripRawToDigi ,
         #process.hltSiStripZeroSuppression,
-        process.hltSiStripExcludedFEDListProducer,
+        #process.hltSiStripExcludedFEDListProducer,
+        #process.hltSiStripRawToDigi,
+        #process.hltSiStripZeroSuppression, 
+        #process.hltSiStripClusterizerForRawPrime,
         #process.hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression,
         process.hltSiStripRawToClustersFacility,
         process.hltSiStripMatchedRecHitsFull,
@@ -680,9 +746,11 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         digiErrorSoASrc = 'hltSiPixelClustersCPUSerial',
         fmtErrorsSoASrc = 'hltSiPixelClustersCPUSerial',
     )
-    #process.hltSiStripMatchedRecHitsFullCPUSerial = makeSerialClone(process.hltSiStripMatchedRecHitsFull)
-    #    #ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacility" )
-    #    alpaka = dict( backend = 'serial_sync' )
+    #process.hltSiStripRawToClustersFacilityCPUSerial = process.hltSiStripRawToClustersFacility.clone(
+    #    onDemand = cms.bool( False ),
+    #)
+    #process.hltSiStripMatchedRecHitsFullCPUSerial = process.hltSiStripMatchedRecHitsFull.clone(
+    #    ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacilityCPUSerial" )
     #)
     process.hltSiPixelOnlyRecHitsSoACPUSerial = process.hltSiPixelOnlyRecHitsSoA.clone(
         beamSpot = cms.InputTag('hltOnlineBeamSpotDeviceCPUSerial'),
@@ -696,7 +764,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     #)
 
     process.hltSiPixelRecHitsSerialSync = process.hltSiPixelRecHits.clone(
-         pixelRecHitSrc = 'hltSiPixelRecHitsSoASerialSync',
+         pixelRecHitSrc = 'hltSiPixelOnlyRecHitsSoACPUSerial',
          src = 'hltSiPixelClustersLegacyFormatCPUSerial',
     )
 
@@ -705,9 +773,10 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
          process.hltSiPixelClustersCPUSerial,
          process.hltSiPixelClustersLegacyFormatCPUSerial,
          process.hltSiPixelDigiErrorsLegacyFormatCPUSerial,
-         process.hltSiStripMatchedRecHitsFull,
+         #process.hltSiStripRawToClustersFacilityCPUSerial,
+         #process.hltSiStripMatchedRecHitsFullCPUSerial,
          process.hltSiPixelOnlyRecHitsSoACPUSerial,
-         process.hltSiPixelRecHitsSoASerialSync,
+         #process.hltSiPixelRecHitsSoASerialSync,
          process.hltSiPixelRecHitsSerialSync,
     )
 
