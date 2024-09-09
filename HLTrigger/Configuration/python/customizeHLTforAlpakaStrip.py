@@ -520,7 +520,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     #  - DetIdCollection
     #  - DetIdCollection, 'UserErrorModules'
     #  - edmNew::DetSetVector<PixelFEDChannel>
-    process.hltSiPixelDigisErrors = cms.EDProducer('SiPixelDigiErrorsFromSoAAlpaka',
+    process.hltSiPixelDigiErrors = cms.EDProducer('SiPixelDigiErrorsFromSoAAlpaka',
         digiErrorSoASrc = cms.InputTag('hltSiPixelClustersSoA'),
         fmtErrorsSoASrc = cms.InputTag('hltSiPixelClustersSoA'),
         CablingMapLabel = cms.string(''),
@@ -710,14 +710,7 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
         process.hltSiPixelClustersSoA,
         process.hltSiPixelClusters,   # was: hltSiPixelClusters
         process.hltSiPixelClustersCache,          # really needed ??
-        process.hltSiPixelDigisErrors, # was: hltSiPixelDigis
-        #process.hltSiStripRawToDigi ,
-        #process.hltSiStripZeroSuppression,
-        #process.hltSiStripExcludedFEDListProducer,
-        #process.hltSiStripRawToDigi,
-        #process.hltSiStripZeroSuppression, 
-        #process.hltSiStripClusterizerForRawPrime,
-        #process.hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression,
+        process.hltSiPixelDigiErrors, # was: hltSiPixelDigis
         process.hltSiStripRawToClustersFacility,
         process.hltSiStripMatchedRecHitsFull,
         process.hltSiPixelOnlyRecHitsSoA,
@@ -730,54 +723,47 @@ def customizeHLTforAlpakaPixelRecoLocal(process):
     ###
     ### CPUSerial version of Pixel Local Reconstruction
     ###
-    process.hltOnlineBeamSpotDeviceCPUSerial = process.hltOnlineBeamSpotDevice.clone(
-        alpaka = dict( backend = 'serial_sync' )
+    
+    process.hltOnlineBeamSpotDeviceSerialSync = makeSerialClone(process.hltOnlineBeamSpotDevice)
+
+    process.hltSiPixelClustersSoASerialSync = makeSerialClone(process.hltSiPixelClustersSoA)
+
+    process.hltSiPixelClustersSerialSync = process.hltSiPixelClusters.clone(
+        src = 'hltSiPixelClustersSoASerialSync'
     )
 
-    process.hltSiPixelClustersCPUSerial = process.hltSiPixelClustersSoA.clone(
-        alpaka = dict( backend = 'serial_sync' )
+    process.hltSiPixelDigiErrorsSerialSync = process.hltSiPixelDigiErrors.clone(
+        digiErrorSoASrc = 'hltSiPixelClustersSoASerialSync',
+        fmtErrorsSoASrc = 'hltSiPixelClustersSoASerialSync',
     )
-
-    process.hltSiPixelClustersLegacyFormatCPUSerial = process.hltSiPixelClusters.clone(
-        src = 'hltSiPixelClustersCPUSerial'
+    
+    process.hltSiPixelOnlyRecHitsSoACPUSerial = makeSerialClone(process.hltSiPixelOnlyRecHitsSoA,
+        beamSpot = 'hltOnlineBeamSpotDeviceSerialSync',
+        src = 'hltSiPixelClustersSoASerialSync'
     )
-
-    process.hltSiPixelDigiErrorsLegacyFormatCPUSerial = process.hltSiPixelDigisErrors.clone(
-        digiErrorSoASrc = 'hltSiPixelClustersCPUSerial',
-        fmtErrorsSoASrc = 'hltSiPixelClustersCPUSerial',
-    )
-    #process.hltSiStripRawToClustersFacilityCPUSerial = process.hltSiStripRawToClustersFacility.clone(
-    #    onDemand = cms.bool( False ),
-    #)
-    #process.hltSiStripMatchedRecHitsFullCPUSerial = process.hltSiStripMatchedRecHitsFull.clone(
-    #    ClusterProducer = cms.InputTag( "hltSiStripRawToClustersFacilityCPUSerial" )
-    #)
-    process.hltSiPixelOnlyRecHitsSoACPUSerial = process.hltSiPixelOnlyRecHitsSoA.clone(
-        beamSpot = cms.InputTag('hltOnlineBeamSpotDeviceCPUSerial'),
-        src = cms.InputTag('hltSiPixelClustersCPUSerial'),
-        alpaka = dict( backend = 'serial_sync' )
-    )
-    process.hltSiPixelRecHitsSoASerialSync = makeSerialClone(process.hltSiPixelRecHitsSoA)#process.hltSiPixelRecHitsSoA.clone(
-        #alpaka = dict( backend = 'serial_sync' ),
-        #stripRecHitSource = cms.InputTag('hltSiStripMatchedRecHitsFull', 'matchedRecHit'),
-        #pixelRecHitSoASource = cms.InputTag('hltSiPixelOnlyRecHitsSoACPUSerial'),
-    #)
-
+    
+    process.hltSiPixelRecHitsSoASerialSync = makeSerialClone(process.hltSiPixelRecHitsSoA,
+      pixelRecHitSoASource = cms.InputTag('hltSiPixelOnlyRecHitsSoACPUSerial'),
+      )
+    
     process.hltSiPixelRecHitsSerialSync = process.hltSiPixelRecHits.clone(
          pixelRecHitSrc = 'hltSiPixelOnlyRecHitsSoACPUSerial',
-         src = 'hltSiPixelClustersLegacyFormatCPUSerial',
+         src = 'hltSiPixelClustersSerialSync',
     )
 
+    if(not hasattr(process,'hltSiPixelOnlyRecHitsSoA')):
+        return process
+    
     process.HLTDoLocalPixelCPUSerialTask = cms.ConditionalTask(
-         process.hltOnlineBeamSpotDeviceCPUSerial,
-         process.hltSiPixelClustersCPUSerial,
-         process.hltSiPixelClustersLegacyFormatCPUSerial,
-         process.hltSiPixelDigiErrorsLegacyFormatCPUSerial,
-         #process.hltSiStripRawToClustersFacilityCPUSerial,
-         #process.hltSiStripMatchedRecHitsFullCPUSerial,
-         process.hltSiPixelOnlyRecHitsSoACPUSerial,
-         #process.hltSiPixelRecHitsSoASerialSync,
-         process.hltSiPixelRecHitsSerialSync,
+        process.hltOnlineBeamSpotDeviceSerialSync,
+        process.hltSiPixelClustersSoASerialSync,
+        process.hltSiPixelClustersSerialSync,
+        process.hltSiPixelDigiErrorsSerialSync,
+        process.hltSiStripRawToClustersFacility,
+        process.hltSiStripMatchedRecHitsFull,
+        process.hltSiPixelOnlyRecHitsSoACPUSerial,
+        process.hltSiPixelRecHitsSoASerialSync,
+        process.hltSiPixelRecHitsSerialSync
     )
 
     process.HLTDoLocalPixelSequenceSerialSync = cms.Sequence( process.HLTDoLocalPixelCPUSerialTask)
@@ -835,7 +821,7 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
         lateFishbone = cms.bool(False),
         fillStatistics = cms.bool(False),
         minHitsPerNtuplet = cms.uint32(4),
-        minHitsForSharingCut = cms.uint32(4),
+        minHitsForSharingCut = cms.uint32(10),
         fitNas4 = cms.bool(False),
         doClusterCut = cms.bool(True),
         doZ0Cut = cms.bool(True),
@@ -1167,7 +1153,8 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
     )
 
     process.hltPixelTracksSerialSync = process.hltPixelTracks.clone(
-        pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHitsLegacyFormatCPUSerial"),
+        pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHitsSerialSync"),
+        hitModuleStartSrc = cms.InputTag("hltSiPixelRecHitsSoASerialSync"),     
         trackSrc = cms.InputTag("hltPixelTracksSoASerialSync")
     )
 
@@ -1244,9 +1231,8 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         )
     )
 
-    process.hltPixelVerticesSoASerialSyn = process.hltPixelVerticesSoA.clone(
-        pixelTrackSrc = 'hltPixelTracksCPUSerial',
-        alpaka = dict( backend = 'serial_sync' )
+    process.hltPixelVerticesSoASerialSync = makeSerialClone(process.hltPixelVerticesSoA,
+        pixelTrackSrc = 'hltPixelTracksSoASerialSync'
     )
 
     process.hltPixelVertices = cms.EDProducer("PixelVertexProducerFromSoAAlpaka",
@@ -1255,26 +1241,29 @@ def customizeHLTforAlpakaPixelRecoVertexing(process):
         src = cms.InputTag("hltPixelVerticesSoA")
     )
 
-    process.hltPixelVerticesLegacyFormatCPUSerial = process.hltPixelVertices.clone(
-        TrackCollection = cms.InputTag("hltPixelTracksLegacyFormatCPUSerial"),
-        src = cms.InputTag("hltPixelVerticesSoASerialSyn")
+    process.hltPixelVerticesSerialSync = process.hltPixelVertices.clone(
+        TrackCollection = cms.InputTag("hltPixelTracksSerialSync"),
+        src = cms.InputTag("hltPixelVerticesSoASerialSync")
     )
+
 
     ## failsafe for fake menus
     if(not hasattr(process,'hltTrimmedPixelVertices')):
         return process
 
+    
     process.HLTRecopixelvertexingTask = cms.ConditionalTask(
         process.HLTRecoPixelTracksTask,
         process.hltPixelVerticesSoA,
         process.hltPixelVertices,
         process.hltTrimmedPixelVertices
     )
-
+    
     process.HLTRecopixelvertexingCPUSerialTask = cms.ConditionalTask(
         process.HLTRecoPixelTracksCPUSerialTask,
-        process.hltPixelVerticesSoASerialSyn,
-        process.hltPixelVerticesLegacyFormatCPUSerial,
+        process.hltPixelVerticesSoASerialSync,
+        process.hltPixelVerticesSerialSync,
+        process.hltTrimmedPixelVerticesSerialSync
     )
     process.HLTRecopixelvertexingSequence = cms.Sequence( process.HLTRecopixelvertexingTask )
 
