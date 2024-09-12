@@ -136,8 +136,8 @@ void SiStripRecHitSoA<TrackerTraits>::produce(device::Event& iEvent, device::Eve
 
   size_t nPixelHits = pixelHitsHost.view().metadata().size();
 
-  std::cout << "nStripHits = " << nStripHits << std::endl;
-  std::cout << "nPixelHits = " << nPixelHits << std::endl;
+  //std::cout << "nStripHits = " << nStripHits << std::endl;
+  //std::cout << "nPixelHits = " << nPixelHits << std::endl;
 
   // HostView<const PixelHits, PixelHitsHost> pixelHitsHostView(pixelHits, iEvent.queue());
   // PixelHitsHost& pixelHitsHost = pixelHitsHostView.get();

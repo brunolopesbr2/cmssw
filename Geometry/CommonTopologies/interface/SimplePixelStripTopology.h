@@ -141,15 +141,13 @@ namespace phase1PixelStripTopology {
   { BPIX1,    TIB1,       phi5deg,  -22.,   0.,    1000.        }, // 43
   { BPIX1,    TIB2,       phi5deg,  -22.,   0.,    1000.        }, // 44
   { BPIX3,    TIB2,       phi5deg,  -22.,   22.,   1000.        }, // 45
-  { BPIX4,    TID1Pos2D,   phi5deg,   0.,   55.,   1000.        }, // 46
-  { BPIX4,    TID1Neg2D,   phi5deg,  -55.,  0.,    1000.        }, // 47
-  //{ FPIX1Pos, FPIX3Pos,   phi0p07,  -70.,   70.,      9.        }, // 48
+  { BPIX4,    TID1Pos2D,  phi5deg,   0.,   55.,   1000.        }, // 46
+  { BPIX4,    TID1Neg2D,  phi5deg,  -55.,  0.,    1000.        }, // 47
   { FPIX1Pos, FPIX3Pos,   phi0p05,  -70.,   70.,      9.        }, // 48
   { FPIX1Pos, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 49
   { FPIX1Pos, TID1Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 50
   { FPIX1Pos, TID2Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 51
   { FPIX1Pos, TID3Pos2D,  phi5deg,  -70.,   70.,   1000.        }, // 52
-  //{ FPIX1Neg, FPIX3Neg,   phi0p07,  -70.,   70.,      9.        }, // 53
   { FPIX1Neg, FPIX3Neg,   phi0p05,  -70.,   70.,      9.        }, // 53
   { FPIX1Neg, TIB2,       phi5deg,  -70.,   70.,   1000.        }, // 54
   { FPIX1Neg, TID1Neg2D,  phi5deg,  -70.,   70.,   1000.        }, // 55

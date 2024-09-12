@@ -172,27 +172,27 @@ void SeedFromConsecutiveHitsCreator::buildSeed(TrajectorySeedCollection& seedCol
   const TrackingRecHit* hit = nullptr;
   for (unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit]->hit();
-    // added by me
+    // added by Brunella
     const GeomDet* baseDet = trackerGeometry_->idToDet(hit->geographicalId());
     const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(baseDet);
-    if (iHit == 0) std::cout << "Start analyzing!" << std::endl;
-    std::cout << "Everything fine until here!" << std::endl;
-    DetId detId = hit->geographicalId();
-    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-    std::cout << "Hit is in the Pixel Barrel." << std::endl;
-    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
-        std::cout << "Hit is in the Pixel Endcap." << std::endl;
-    } else if (detId.subdetId() == StripSubdetector::TIB) {
-        std::cout << "Hit is in the Tracker Inner Barrel." << std::endl;
-    } else if (detId.subdetId() == StripSubdetector::TOB) {
-        std::cout << "Hit is in the Tracker Outer Barrel." << std::endl;
-    } else if (detId.subdetId() == StripSubdetector::TEC) {
-        std::cout << "Hit is in the Tracker Endcap." << std::endl;
-    } else if (detId.subdetId() == StripSubdetector::TID) {
-        std::cout << "Hit is in the Tracker Inner Disc." << std::endl;
-    } else {
-        std::cout << "Hit is in an unknown detector." << std::endl;
-    }
+    //if (iHit == 0) std::cout << "Start analyzing!" << std::endl;
+    //std::cout << "Everything fine until here!" << std::endl;
+    //DetId detId = hit->geographicalId();
+    //if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+    //std::cout << "Hit is in the Pixel Barrel." << std::endl;
+    //} else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
+    //    std::cout << "Hit is in the Pixel Endcap." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TIB) {
+    //    std::cout << "Hit is in the Tracker Inner Barrel." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TOB) {
+    //    std::cout << "Hit is in the Tracker Outer Barrel." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TEC) {
+    //    std::cout << "Hit is in the Tracker Endcap." << std::endl;
+    //} else if (detId.subdetId() == StripSubdetector::TID) {
+    //    std::cout << "Hit is in the Tracker Inner Disc." << std::endl;
+    //} else {
+    //    std::cout << "Hit is in an unknown detector." << std::endl;
+    //}
     
     //pixelTopology::Phase1Strip::mapIndex(trackerGeometry_->idToDet(hit->stereoId()->index())))
     TrajectoryStateOnSurface state =

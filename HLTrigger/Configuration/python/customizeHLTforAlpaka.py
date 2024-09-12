@@ -672,7 +672,7 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
         return process
 
     for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
-        print("entered the producers loop")
+        #print("entered the producers loop")
         if hasattr(producer, "CPE"):
             print("found CPE stuff")
             delattr(producer, "CPE")
@@ -680,7 +680,7 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
             setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
 
     for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
-        print("entered the producers loop")
+        #print("entered the producers loop")
         if hasattr(producer, "CPE"):
             print("found CPE stuff")
             delattr(producer, "CPE")
@@ -805,17 +805,17 @@ def customizeHLTforAlpakaPixelRecoTracking(process):
 
 def customizeHLTAlpakaDeleteCPE(process):
     for producer in producers_by_type(process, "CAHitNtupletAlpakaPhase1@alpaka"):
-        print("entered the producers loop")
+        #print("entered the producers loop")
         if hasattr(producer, "CPE"):
-            print("found CPE stuff")
+            #print("found CPE stuff")
             delattr(producer, "CPE")
         if not hasattr(producer, 'frameSoA'):
             setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))
 
     for producer in producers_by_type(process, "alpaka_serial_sync::CAHitNtupletAlpakaPhase1"):
-        print("entered the producers loop")
+        #print("entered the producers loop")
         if hasattr(producer, "CPE"):
-            print("found CPE stuff")
+            #print("found CPE stuff")
             delattr(producer, "CPE")
         if not hasattr(producer, 'frameSoA'):
             setattr(producer, 'frameSoA', cms.string('FrameSoAPhase1'))

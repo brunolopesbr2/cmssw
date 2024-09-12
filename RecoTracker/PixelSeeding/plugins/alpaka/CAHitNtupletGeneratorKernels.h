@@ -45,11 +45,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const float ptmin_;
       const float CAThetaCutBarrel_;
       const float CAThetaCutForward_;
-      const float CAThetaCutStrip_;
       const float hardCurvCut_;
       const float dcaCutInnerTriplet_;
       const float dcaCutOuterTriplet_;
-      const float dcaCutOuterTripletStrip_;
+      const float CAThetaCutBarrelPixelBarrelStrip_;
+      const float CAThetaCutBarrelPixelForwardStrip_;
+      const float CAThetaCutBarrelStripForwardStrip_;
+      const float CAThetaCutBarrelStrip_;
+      const float CAThetaCutDefault_;
+      const float dcaCutInnerTripletPixelStrip_;
+      const float dcaCutOuterTripletPixelStrip_;
+      const float dcaCutTripletStrip_;
+      const float dcaCutTripletDefault_;
     };
 
     template <typename TrackerTraits, typename Enable = void>
